@@ -1,0 +1,34 @@
+"""
+FruitBlend24: Data Cleaning Pipeline
+File: 01_data_cleaning.py
+"""
+import pandas as pd
+
+def clean_fruitblend_data(file_path="FruitBlend24_Intern_Case_Data.xlsx"):
+    df_orders = pd.read_excel(file_path, sheet_name="orders_hourly")
+    test_items = ["น้ำส้มปั่น (เมนูทดลอง)", "Combo Set A (2 แก้ว)", "แก้วเปล่า"]
+    df_clean = df_orders[~df_orders["item_name_raw"].isin(test_items)].copy()
+
+    sku_mapping = {
+        "Watermelon Ice": "Watermelon", "Watermelon smoothy": "Watermelon", "Watermelon Smoothie": "Watermelon",
+        "watermelon ice": "Watermelon", "แตงโมปั่นสด": "Watermelon", "แตงโมปั่น": "Watermelon", "แตงโมปั่น (ไซส์ M)": "Watermelon",
+        "Pineapple Ice": "Pineapple", "pineapple ice": "Pineapple", "สับปะรดปั่น": "Pineapple", "สัปปะรดปั่น": "Pineapple",
+        "Pineapple Smoothie": "Pineapple", "Pineapple smoothie": "Pineapple",
+        "Guava Ice": "Guava", "Guava Smoothie": "Guava", "ฝรั่งปั่น (ใส่เกลือ)": "Guava", "guava ice": "Guava", "ฝรั่งปั่น": "Guava",
+        "Passion Fruit Smoothie": "PassionFruit", "เสาวรสปั่น": "PassionFruit", "Passion Fruit Ice": "PassionFruit",
+        "เสาวรสปั่นเข้มข้น": "PassionFruit", "passionfruit ice": "PassionFruit",
+        "เบอร์รี่ปั่นพรีเมียม": "MixedBerryPremium", "berry premium smoothie": "MixedBerryPremium",
+        "Mixed Berry (Premium)": "MixedBerryPremium", "เบอร์รี่รวมพรีเมียม": "MixedBerryPremium", "Mixed Berry Premium": "MixedBerryPremium"
+    }
+
+    df_clean["sku"] = df_clean["item_name_raw"].map(sku_mapping)
+    df_clean["platform_code"] = df_clean["rate_code"].astype(str).str[:2]
+    df_clean["date"] = pd.to_datetime(df_clean["date"])
+    df_clean["month_year"] = df_clean["date"].dt.to_period("M").astype(str)
+    
+    df_clean.to_csv("cleaned_orders_hourly.csv", index=False)
+    print("Cleaned data ready!")
+    return df_clean
+
+if __name__ == "__main__":
+    clean_fruitblend_data()

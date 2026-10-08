@@ -1,0 +1,5 @@
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+chart_*.png
+test_deck.pptx
